@@ -1,0 +1,130 @@
+# BBO OpenAPI Merger Configuration
+# This file defines how per-service OpenAPI specs are merged into a single
+# aggregated spec for the API gateway.
+#
+# Environment variables:
+#   ${GATEWAY_URL:-http://localhost:8888}  - Gateway base URL
+#   ${GIT_TAG:-1.0.0}                      - Version string
+
+version: "1.0"
+
+gateway:
+  title: "BBO (Batubara Online) — API Gateway"
+  description: >
+    Aggregated OpenAPI documentation for all BBO microservices.
+    This spec is auto-generated from source code annotations and merged at build time.
+    Do not edit manually — update the source code annotations and re-run the merger.
+  version: "${GIT_TAG:-1.0.0}"
+  server_url: "${GATEWAY_URL:-http://localhost:8888}"
+
+services:
+  - key: bbo-api
+    name: "BBO Core API"
+    spec_path: "artifacts/bbo-api.swagger.json"
+    module: "github.com/bbo-iconpln/bbo-api"
+    tag_prefix: ""
+    schema_prefix: "BboApi"
+    path_rewrite:
+      - from: "/api/v1"
+        to: "/api/v1"
+    default_security: BearerAuth
+    public_paths:
+      - "/api/v1/calendar-event/current-background"
+    required: true
+
+  - key: bbo-auth-service
+    name: "BBO Auth Service"
+    spec_path: "artifacts/bbo-auth-service.swagger.json"
+    module: "github.com/bbo-iconpln/bbo-auth-service"
+    tag_prefix: ""
+    schema_prefix: "BboAuth"
+    path_rewrite:
+      - from: "/api/v1"
+        to: "/auth/v1"
+    default_security: BearerAuth
+    public_paths:
+      - "/auth/v1/auth/login"
+      - "/auth/v1/auth/login/init"
+      - "/auth/v1/auth/login/otp"
+      - "/auth/v1/auth/exchange"
+      - "/auth/v1/auth/captcha/init"
+      - "/auth/v1/auth/activate/validate"
+      - "/auth/v1/auth/activate"
+      - "/auth/v1/auth/forgotpassword"
+      - "/auth/v1/auth/forgotpassword/otp"
+      - "/auth/v1/auth/changepassword/otp"
+      - "/auth/v1/auth/changepassword/default"
+      - "/auth/v1/auth/changepassword/stop-all-session"
+      - "/auth/v1/auth/helpdesk"
+    required: true
+
+  - key: bbo-dashboard-api
+    name: "BBO Dashboard API"
+    spec_path: "artifacts/bbo-dashboard-api.swagger.json"
+    module: "github.com/bbo-iconpln/bbo-dashboard-api"
+    tag_prefix: ""
+    schema_prefix: "BboDashboard"
+    path_rewrite:
+      - from: "/api/v1"
+        to: "/dashboard-api/v1"
+    default_security: BearerAuth
+    required: true
+
+  - key: bbo-scheduler
+    name: "BBO Scheduler"
+    spec_path: "artifacts/bbo-scheduler.swagger.json"
+    module: "github.com/bbo-iconpln/bbo-scheduler"
+    tag_prefix: ""
+    schema_prefix: "BboScheduler"
+    path_rewrite: []
+    default_security: ApiKeyAuth
+    public_paths:
+      - "/health"
+    required: true
+
+shared_schemas:
+  - StandardResponse
+  - StandardPagination
+  - StandardError
+  - ErrorDetail
+  - ValidationError
+
+security_schemes:
+  BearerAuth:
+    type: http
+    scheme: bearer
+    bearerFormat: JWT
+    description: "JWT Bearer token. Obtained from /auth/v1/auth/login."
+  ApiKeyAuth:
+    type: apiKey
+    in: header
+    name: X-API-Key
+    description: "API key for gateway-level authentication and admin endpoints."
+  BasicAuth:
+    type: http
+    scheme: basic
+    description: "Basic authentication (optional, for legacy integrations)."
+  OAuth2:
+    type: oauth2
+    description: "OAuth2 authorization code flow (future-ready)."
+
+validation:
+  fail_on:
+    - duplicate_path
+    - duplicate_schema
+    - broken_reference
+    - schema_conflict
+    - missing_tag
+    - missing_security
+  warn_on:
+    - circular_reference
+    - missing_summary
+    - missing_description
+  linter: vacuum
+
+output:
+  format: json
+  path: "docs/openapi-aggregated.json"
+  yaml_path: "docs/openapi-aggregated.yaml"
+  report_path: "docs/merge-report.json"
+  pretty: true

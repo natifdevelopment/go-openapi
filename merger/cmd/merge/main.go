@@ -13,6 +13,7 @@
 package main
 
 import (
+	"log"
 	"flag"
 	"fmt"
 	"os"
@@ -58,7 +59,7 @@ func main() {
 		for _, svc := range m.Config.Services {
 			fmt.Printf("  - %s (%s)\n", svc.Key, svc.SpecPath)
 		}
-		fmt.Println()
+		log.Println()
 	}
 
 	if *validateOnly {
@@ -66,7 +67,7 @@ func main() {
 			fmt.Fprintf(os.Stderr, "Validation failed: %v\n", err)
 			os.Exit(1)
 		}
-		fmt.Println("Validation passed.")
+		log.Println("Validation passed.")
 		return
 	}
 
@@ -81,5 +82,5 @@ func main() {
 		os.Exit(1)
 	}
 
-	fmt.Println("Merge completed successfully.")
+	log.Println("Merge completed successfully.")
 }

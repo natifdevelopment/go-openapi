@@ -18,20 +18,6 @@ gateway:
   server_url: "${GATEWAY_URL:-http://localhost:8888}"
 
 services:
-  - key: bbo-api
-    name: "BBO Core API"
-    spec_path: "artifacts/bbo-api.swagger.json"
-    module: "github.com/bbo-iconpln/bbo-api"
-    tag_prefix: ""
-    schema_prefix: "BboApi"
-    path_rewrite:
-      - from: "/api/v1"
-        to: "/api/v1"
-    default_security: BearerAuth
-    public_paths:
-      - "/api/v1/calendar-event/current-background"
-    required: true
-
   - key: bbo-auth-service
     name: "BBO Auth Service"
     spec_path: "artifacts/bbo-auth-service.swagger.json"

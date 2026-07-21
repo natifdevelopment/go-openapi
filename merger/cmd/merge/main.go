@@ -8,14 +8,14 @@
 //
 // Environment variables:
 //
-//	GATEWAY_URL  - Gateway base URL (default: http://localhost:8888)
+//	GATEWAY_URL  - Gateway base URL (default: "")
 //	GIT_TAG      - Version string (default: 1.0.0)
 package main
 
 import (
-	"log"
 	"flag"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/natifdevelopment/go-openapi/merger"

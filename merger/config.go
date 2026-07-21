@@ -9,6 +9,11 @@ import (
 	"gopkg.in/yaml.v3"
 )
 
+// GlobalConfig holds a pre-built merge configuration set by the caller.
+// When set, LoadConfig returns it instead of parsing services.yaml, so
+// applications can centralize config in configs.* globals.
+var GlobalConfig *Config
+
 // Config is the declarative merge configuration loaded from services.yaml.
 type Config struct {
 	Version         string               `yaml:"version"`
@@ -76,7 +81,12 @@ type OutputConfig struct {
 
 // LoadConfig reads and parses a services.yaml config file.
 // Environment variables in the format ${VAR_NAME} are expanded.
+// If GlobalConfig is set, it is returned and the path is ignored.
 func LoadConfig(path string) (*Config, error) {
+	if GlobalConfig != nil {
+		return GlobalConfig, nil
+	}
+
 	data, err := os.ReadFile(path)
 	if err != nil {
 		return nil, err

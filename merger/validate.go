@@ -26,7 +26,7 @@ func (m *Merger) Validate(spec *oas.Spec) {
 	m.checkMissingDescription(spec)
 }
 
-func (m *Merger) checkDuplicatePaths(spec *oas.Spec) {
+func (m *Merger) checkDuplicatePaths(_ *oas.Spec) {
 	for _, c := range m.conflicts {
 		if c.Type == "duplicate_path" {
 			m.errors = append(m.errors, ValidationResult{

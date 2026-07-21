@@ -17,7 +17,7 @@ func (m *Merger) RewriteAllPaths() {
 	}
 }
 
-func (m *Merger) rewritePathsForService(svcKey string, spec *oas.Spec, svc *ServiceConfig) {
+func (m *Merger) rewritePathsForService(_ string, spec *oas.Spec, svc *ServiceConfig) {
 	paths := spec.Paths()
 	if paths == nil {
 		return

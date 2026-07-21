@@ -1,8 +1,6 @@
 package merger
 
 import (
-	"strings"
-
 	"github.com/natifdevelopment/go-openapi/oas"
 )
 
@@ -17,7 +15,7 @@ func (m *Merger) PrefixAllSchemas() {
 	}
 }
 
-func (m *Merger) prefixSchemasForService(svcKey string, spec *oas.Spec, svc *ServiceConfig) {
+func (m *Merger) prefixSchemasForService(_ string, spec *oas.Spec, svc *ServiceConfig) {
 	schemasMap := spec.Schemas()
 	if schemasMap == nil {
 		return
@@ -80,31 +78,4 @@ func updateRefsInMap(obj map[string]interface{}, refUpdates map[string]string) {
 			}
 		}
 	}
-}
-
-// updateRefsInSchemaMap is a helper that recursively updates $ref in a schema map.
-func updateRefsInSchemaMap(schema map[string]interface{}, refUpdates map[string]string) {
-	for key, val := range schema {
-		switch v := val.(type) {
-		case string:
-			if key == "$ref" {
-				if newRef, ok := refUpdates[v]; ok {
-					schema[key] = newRef
-				}
-			}
-		case map[string]interface{}:
-			updateRefsInSchemaMap(v, refUpdates)
-		case []interface{}:
-			for _, item := range v {
-				if itemMap, ok := item.(map[string]interface{}); ok {
-					updateRefsInSchemaMap(itemMap, refUpdates)
-				}
-			}
-		}
-	}
-}
-
-// refSchemaName extracts the schema name from a $ref string.
-func refSchemaName(ref string) string {
-	return strings.TrimPrefix(ref, "#/components/schemas/")
 }
